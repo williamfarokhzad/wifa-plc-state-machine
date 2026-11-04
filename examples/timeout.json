@@ -1,0 +1,18 @@
+{
+  "timeout_scans": 5,
+  "scan_ms": 100,
+  "scans": [
+    {},
+    {
+      "start": true
+    },
+    {},
+    {},
+    {},
+    {},
+    {},
+    {
+      "reset": true
+    }
+  ]
+}
