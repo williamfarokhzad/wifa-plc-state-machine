@@ -15,7 +15,7 @@ python main.py examples/stop-restart.json --csv results/stop-restart.csv
 python -m unittest discover -s tests -v
 ```
 
-No pip dependencies, account, PLC IDE or hardware are needed. The twelve test methods should pass. Commands print JSON rows and save CSV files that you can open in a spreadsheet. Run from the project root so tests can import main. Results are overwritten only at the explicit --csv path; use another path to keep a previous experiment.
+No pip dependencies, account, PLC IDE or hardware are needed. The fifteen test methods should pass. Commands print JSON rows and save CSV files that you can open in a spreadsheet. Run from the project root so tests can import main. Results are overwritten only at the explicit --csv path; use another path to keep a previous experiment.
 
 ## Read a scan
 
@@ -54,9 +54,15 @@ Copy an example JSON file and edit only the copy. Set timeout_scans to 3 and run
 
 ## Tests and troubleshooting
 
-Tests cover exact normal trace and output values, timeout boundary, simultaneous sensor/stop/permit conditions, blocked and held commands, latched completion, reset sequencing, invalid data and timestamp semantics. The exhaustive two-scan check tries all 1,024 pairs of the 32 Boolean input snapshots and asserts output invariants. It is bounded testing, not a proof over every possible execution.
+Tests cover exact normal trace and output values, timeout boundary, simultaneous sensor/stop/permit conditions, blocked and held commands, latched completion, reset sequencing, invalid data and timestamp semantics. The exhaustive two-scan check tries all 1,024 pairs of the 32 Boolean input snapshots and asserts output invariants. It is bounded testing, not a proof over every possible execution. Three CLI tests also compare every CSV field with JSON output, check nested output creation and confirm that invalid output paths preserve existing files and directories.
 
 If Python is missing, reopen the terminal after installation or use the interpreter alias above. If tests cannot import main, change to the project root. If a JSON error appears, check commas, quotes and lowercase true/false. If a sensor disappears unexpectedly, remember omitted inputs reset to defaults each row. If a spreadsheet locks a CSV, close it or choose another --csv path. A stuck FAULT usually means permit is still false or reset has no fresh rising edge.
+
+## Fix a CSV output error
+
+If the command reports `Cannot write CSV output to`, read the destination and operating system error in the message. Give `--csv` a file path such as `results/normal.csv`, not an existing directory. Every parent component must be a directory; an existing file named `results` cannot contain `normal.csv`. Close a spreadsheet that locks the file, or choose a writable destination. Quote paths containing spaces.
+
+CSV output errors exit with code 2 and do not print a successful JSON trace. Successful commands create missing parent directories. Writing is not atomic: an error after a regular output file is opened can leave it truncated or partially written. Keep valuable results at a separate path and inspect the exit code before using a new trace.
 
 ## Simulation boundaries
 
@@ -67,5 +73,7 @@ For a later PLC port, define task interval and I/O update order, map states to a
 ## Primary references
 
 CODESYS documentation explains [CASE branches](https://content.helpme-codesys.com/en/CODESYS%20Development%20System/_cds_st_instruction_case.html), [task configuration and timing](https://content.helpme-codesys.com/en/CODESYS%20Development%20System/_cds_f_reference_task.html) and the [Standard library](https://content.helpme-codesys.com/en/libs/Standard/Current/index.html). These inform the concepts; the transition priorities above are specific to our original model.
+
+Python documents [CSV file handling](https://docs.python.org/3.12/library/csv.html) and [command line error reporting](https://docs.python.org/3.12/library/argparse.html#argparse.ArgumentParser.error).
 
 Original implementation by WIFA Robotics. No license grant is implied; contact the owner for reuse permission.

@@ -97,10 +97,13 @@ def main():
     except (OSError, ValueError, TypeError) as exc:
         parser.error(str(exc))
     if args.csv:
-        args.csv.parent.mkdir(parents=True, exist_ok=True)
-        with args.csv.open("w", newline="") as handle:
-            writer = csv.DictWriter(handle, fieldnames=rows[0].keys())
-            writer.writeheader(); writer.writerows(rows)
+        try:
+            args.csv.parent.mkdir(parents=True, exist_ok=True)
+            with args.csv.open("w", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=rows[0].keys())
+                writer.writeheader(); writer.writerows(rows)
+        except OSError as exc:
+            parser.error(f"Cannot write CSV output to {args.csv}: {exc}")
     print(json.dumps(rows, indent=2))
 
 if __name__ == "__main__":
